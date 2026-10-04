@@ -1,5 +1,5 @@
 // Golden Dumbbell offline cache. Change VERSION after each update to index.html.
-const VERSION = 'golden-dumbbell-v2';
+const VERSION = 'golden-dumbbell-v3';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
