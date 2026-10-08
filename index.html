@@ -226,6 +226,8 @@ h2{font-size:22px;margin:4px 4px 12px;text-wrap:balance}
 .machines button{min-height:64px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);font-weight:800;display:grid;place-items:center;gap:2px;font-size:14px}
 .machines button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .machines svg{width:26px;height:20px}
+.pshow{margin-top:8px;min-height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--accent-hi);font-weight:800;font-size:13px}
+.pvis{grid-column:1 / -1;border:1px solid var(--line);border-radius:12px;overflow:hidden}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -652,7 +654,7 @@ function arrowPts(v){
 function viewsOf(ex){
   if(ex.views) return ex.views;
   const side = { key:'side', label:'Side', kind:'side', id:ex.id, A:ex.A, B:ex.B, draw:ex.draw, hl:ex.hl, arrows:ex.arrows, farOff:ex.farOff, vb:ex.vb, notes:ex.notes };
-  const list = [side];
+  const list = ex.A ? [side] : [];
   if(ex.front){ const top = !!ex.front.top; list.push(Object.assign({ key:top?'top':'front', label:top?'From above':'Front', kind:'front', id:ex.id }, ex.front)); }
   if(ex.frontFirst) list.reverse();
   return ex.views = list;
@@ -1019,28 +1021,301 @@ def({ id:'carry', name:"Farmer's Carry", sets:3, reps:'40', type:'steps', rest:6
     notes:[ {svg:J=>dashed(add(J.r.sh,[-10,-6]),add(J.l.sh,[10,-6])), at:J=>add(J.l.sh,[10,-6]), text:'Shoulders level', x:240, y:40},
             {at:J=>add(J.head,[-8,-10]), text:'Look ahead', x:70, y:24} ] }
 });
+/* ---------- Library moves (add them from "Add exercise") ---------- */
+def({ id:'legext', vb:'10 40 240 160', name:'Leg Extension Machine', sets:3, reps:'10–12', type:'reps', rest:90, load:'machine', muscles:['Quads'],
+  cue:'Back on pad • lift, squeeze, lower slowly', labels:['Knees bent','Legs straight'],
+  how:['Set the back pad so your knees line up with the machine pivot.',
+       'Put the pad on the front of your lower shins, just above your feet.',
+       'Hold the handles. Straighten your legs until they are almost straight.',
+       'Lower slowly for 2 seconds. Do not let the weight drop.'],
+  mistakes:[['Kicking the weight up','Lift smoothly for 1 second. Lower for 2 seconds.'],
+            ['Hips lift off the seat','Hold the handles and keep your back on the pad. Use less weight.'],
+            ['Pad on your feet or ankles','Set the pad on the lower shin, just above the ankle.']],
+  hl:['quads'], farOff:{leg:[-6,-2],arm:[-5,-2]},
+  A:{ hip:[108,128], torso:-100, head:-92, legs:{n:[0,92,0]}, arms:{n:[80,10]} },
+  B:{ hip:[108,128], torso:-100, head:-92, legs:{n:[0,10,-80]}, arms:{n:[80,10]} },
+  arrows:[{joint:'n.ankle',off:[16,-4]}],
+  draw(layer,{J,t}){
+    const n=J.n, knee=n.knee, roll=add(add(n.ankle,V(n.shinA-90,9.5)),V(n.shinA,-4));
+    if(layer==='back') return rect(84,141,72,10,4,C.pad)+`<g transform="translate(86 96) rotate(-10)">${rect(-6,-34,12,74,5,C.pad)}</g>`+
+      rect(110,151,8,37,2,C.metalD)+rect(92,184,44,4,2,C.metalD)+rect(24,60,14,128,2,C.metalD)+plateStack(40,140,18,7,16*t);
+    if(layer==='front') return line(knee,roll,C.metal,5)+circ(knee,4.5,C.metalD)+circ(roll,8,C.pad)+circ(roll,3,C.padE,0);
+    return '';
+  },
+  notes:[ {at:J=>add(J.hip,V(J.torsoA,30)), text:'Back on the pad', x:56, y:56},
+          {when:late, at:J=>J.n.knee, text:'Almost straight, not locked', x:168, y:178} ]
+});
+def({ id:'splitsq', name:'Dumbbell Split Squat', sets:3, reps:'8–10 each leg', type:'reps', rest:90, load:'pair', muscles:['Quads','Glutes'],
+  cue:'Torso tall • back knee straight down', labels:['Stand tall','Lower down'],
+  how:['Hold a dumbbell in each hand at your sides.',
+       'Take a long step forward. Back heel up. Feet hip-width apart, like on two rails.',
+       'Bend both knees and lower your back knee toward the floor.',
+       'Push through your front foot to come up. Do all reps, then switch legs.'],
+  mistakes:[['Feet on one line, like a tightrope','Keep your feet hip-width apart for balance.'],
+            ['Front heel lifts','Keep your whole front foot on the floor. Take a longer step.'],
+            ['Leaning far forward','Keep your chest up and your body tall.']],
+  hl:['quads','glutes'], farOff:{leg:[-2,0],arm:[-4,-2]},
+  A:{ hip:[150,104], torso:-90, head:-90, legs:{n:{ik:[188,182],bend:-1,foot:0}, f:{ik:[110,175],bend:-1,foot:28}}, arms:{n:[90,90]} },
+  B:{ hip:[148,128], torso:-88, head:-90, legs:{n:{ik:[188,182],bend:-1,foot:0}, f:{ik:[110,175],bend:-1,foot:28}}, arms:{n:[90,90]} },
+  arrows:[{joint:'hip',off:[-34,-14]}],
+  draw(layer,{J}){
+    if(layer==='farHand') return dumbbell(add(J.f.hand,[0,7]),0,.95);
+    if(layer==='front') return dumbbell(add(J.n.hand,[0,7]),0,1.05);
+    return '';
+  },
+  notes:[ {at:J=>add(J.headC,[-12,0]), text:'Torso tall', x:70, y:40},
+          {at:J=>J.n.knee, text:'Front knee over foot', x:240, y:100},
+          {when:late, at:J=>J.f.knee, text:'Back knee toward floor', x:70, y:150} ]
+});
+def({ id:'bridge', vb:'30 60 240 160', name:'Glute Bridge', sets:3, reps:'10–15', type:'reps', rest:60, load:'body', muscles:['Glutes','Hamstrings'],
+  cue:'Squeeze glutes • ribs down', labels:['Hips down','Hips up'],
+  how:['Lie on your back. Bend your knees. Feet flat, hip-width apart, close to your hips.',
+       'Arms on the floor by your sides.',
+       'Push through your heels and lift your hips. Squeeze your glutes at the top.',
+       'Stop when your body is straight from shoulders to knees. Lower slowly.'],
+  mistakes:[['Lower back arches at the top','Stop when shoulders, hips and knees make a straight line.'],
+            ['Pushing through your toes','Push through your heels.'],
+            ['Knees fall in or out','Keep your knees in line with your feet.']],
+  hl:['glutes','hamstrings'], farOff:{leg:[-3,-3],arm:[-3,-2]},
+  A:{ hip:[150,172], torso:180, head:180, legs:{n:{ik:[196,182],bend:-1,foot:0}}, arms:{n:[6,0]} },
+  B:{ hip:[145,151], torso:152, head:178, legs:{n:{ik:[196,182],bend:-1,foot:0}}, arms:{n:[18,0]} },
+  arrows:[{joint:'hip',off:[0,-24]}],
+  draw(layer){ if(layer==='back') return rect(40,184,224,5,2,'#4a4136',0); return ''; },
+  notes:[ {when:late, svg:J=>dashed(add(J.shoulder,[0,-14]),add(J.n.knee,[0,-10])), text:'Shoulders to knees: one line', x:150, y:86},
+          {at:J=>add(J.n.ankle,[-3,7]), text:'Push through heels', x:206, y:132} ]
+});
+def({ id:'dbrow', name:'One-Arm Dumbbell Row', sets:3, reps:'10–12 each side', type:'reps', rest:90, load:'single', muscles:['Back','Biceps'],
+  cue:'Back flat • pull elbow to hip', labels:['Arm long','Elbow up'],
+  how:['Put one knee and the same-side hand on a flat bench.',
+       'Other foot on the floor. Back flat, about level with the floor.',
+       'Hold the dumbbell with your arm straight down.',
+       'Pull your elbow up and back toward your hip. Lower slowly. Do all reps, then switch sides.'],
+  mistakes:[['Twisting the body to lift','Keep shoulders and hips square to the floor. Use less weight.'],
+            ['Elbow flares out to the side','Pull your elbow back toward your hip, close to your body.'],
+            ['Rounded back','Keep your back flat and your neck in line.']],
+  hl:['back','biceps'], farOff:{leg:[0,0],arm:[0,0]},
+  A:{ hip:[110,110], torso:-8, head:6, legs:{n:{ik:[86,182],bend:-1,foot:0}, f:[90,180,90]}, arms:{n:[90,90], f:[92,90]} },
+  B:{ hip:[110,110], torso:-8, head:6, legs:{n:{ik:[86,182],bend:-1,foot:0}, f:[90,180,90]}, arms:{n:[230,90], f:[92,90]} },
+  arrows:[{joint:'n.hand',off:[18,0]}],
+  draw(layer,{J}){
+    if(layer==='back') return rect(50,158,134,10,4,C.pad)+rect(52,158,130,3,1.5,C.padE,0)+rect(62,168,8,20,2,C.metalD)+rect(164,168,8,20,2,C.metalD);
+    if(layer==='front') return dumbbell(add(J.n.hand,[0,4]),0,1.05);
+    return '';
+  },
+  notes:[ {svg:J=>{ const b=V(J.torsoA-90,13); return dashed(add(J.hip,b),add(J.shoulder,b)); }, at:J=>add(mid2(J.hip,J.shoulder),V(J.torsoA-90,13)), text:'Back flat', x:96, y:48},
+          {when:late, at:J=>J.n.elbow, text:'Elbow to hip', x:210, y:62},
+          {when:early, at:J=>add(J.n.hand,[10,6]), text:'Hangs beside the bench', x:226, y:132} ]
+});
+def({ id:'incpush', name:'Incline Push-up', sets:3, reps:'8–12', type:'reps', rest:60, load:'body', muscles:['Chest','Triceps','Core'],
+  cue:'Body straight • chest to the bench', labels:['Arms straight','Chest down'],
+  how:['Put your hands on the edge of a bench, a bit wider than your shoulders.',
+       'Step your feet back until your body is straight from head to heels.',
+       'Bend your elbows and lower your chest to the bench edge. Elbows about 45° from your body.',
+       'Push the bench away. A higher bench makes it easier.'],
+  mistakes:[['Hips sag','Squeeze your glutes and brace your belly. Your body stays one straight line.'],
+            ['Elbows straight out to the sides','Keep your elbows about 45° from your body.'],
+            ['Head drops first','Lead with your chest. Keep your neck long.']],
+  hl:['chest','triceps'], farOff:{leg:[-6,0],arm:[-5,-2]},
+  A:{ hip:[165.7,117.6], torso:-38.8, head:-38.8, legs:{n:[141.2,141.2,40]}, arms:{n:{ik:[204,145],bend:1}} },
+  B:{ hip:[176.2,134.1], torso:-25.8, head:-25.8, legs:{n:[154.2,154.2,40]}, arms:{n:{ik:[204,145],bend:1}} },
+  arrows:[{joint:'shoulder',off:[-4,-20]}],
+  draw(layer){ if(layer==='back') return rect(186,150,62,10,4,C.pad)+rect(194,160,8,28,2,C.metalD)+rect(232,160,8,28,2,C.metalD); return ''; },
+  notes:[ {svg:J=>dashed(add(J.n.ankle,[0,-12]),add(J.shoulder,[0,-12])), text:'Body straight, head to heels', x:100, y:62},
+          {when:late, at:J=>add(J.shoulder,[6,8]), text:'Chest to bench edge', x:228, y:112} ]
+});
+def({ id:'curl', name:'Dumbbell Biceps Curl', sets:3, reps:'10–12', type:'reps', rest:60, load:'pair', muscles:['Biceps'],
+  cue:'Elbows at your sides • no swinging', labels:['Arms down','Curl up'],
+  how:['Stand tall with a dumbbell in each hand, palms facing forward.',
+       'Keep your elbows at your sides.',
+       'Curl the dumbbells up toward your shoulders. Only your forearms move.',
+       'Lower slowly until your arms are straight.'],
+  mistakes:[['Swinging the body','Stand still. Use a lighter weight if you need to swing.'],
+            ['Elbows move forward','Keep your elbows next to your ribs the whole time.'],
+            ['Dropping the weight fast','Lower for 2 seconds.']],
+  hl:['biceps'], farOff:{leg:[-6,0],arm:[-5,-2]},
+  A:{ torso:-90, head:-90, legs:{n:[90,90,0]}, arms:{n:[92,90]}, anchor:['n.ankle',150,ANK] },
+  B:{ torso:-90, head:-90, legs:{n:[90,90,0]}, arms:{n:[94,-75]}, anchor:['n.ankle',150,ANK] },
+  arrows:[{joint:'n.hand',off:[18,0]}],
+  draw(layer,{J}){
+    if(layer==='farHand') return dumbbellEnd(J.f.hand,.95);
+    if(layer==='front') return dumbbellEnd(J.n.hand,1.05);
+    return '';
+  },
+  notes:[ {at:J=>J.n.elbow, text:'Elbows stay at sides', x:236, y:122},
+          {at:J=>add(J.headC,[-12,0]), text:'Stand still', x:70, y:40} ]
+});
+def({ id:'pushdown', name:'Cable Triceps Pushdown', sets:3, reps:'10–12', type:'reps', rest:60, load:'machine', muscles:['Triceps'],
+  cue:'Elbows pinned • straighten fully', labels:['Hands at chest','Arms straight'],
+  how:['Attach a rope or bar to the high pulley. Stand close, facing the machine.',
+       'Hold the attachment. Elbows at your sides, bent about 90°.',
+       'Push down until your arms are straight. Spread the rope ends at the bottom.',
+       'Let your forearms rise slowly to chest height. Your elbows do not move.'],
+  mistakes:[['Elbows drift forward and up','Keep your elbows next to your ribs.'],
+            ['Leaning over the weight','Stand tall with only a small forward lean.'],
+            ['Hands come up too high','Stop at chest height.']],
+  hl:['triceps'], farOff:{leg:[-6,0],arm:[-5,-2]},
+  A:{ torso:-84, head:-88, legs:{n:[88,92,0]}, arms:{n:[96,-30]}, anchor:['n.ankle',150,ANK] },
+  B:{ torso:-84, head:-88, legs:{n:[88,92,0]}, arms:{n:[96,86]}, anchor:['n.ankle',150,ANK] },
+  arrows:[{joint:'n.hand',off:[18,0]}],
+  draw(layer,{J}){
+    const h=J.n.hand;
+    if(layer==='back') return rect(232,4,12,184,2,C.metalD)+line([226,14],add(h,[3,-3]),'#cfc8bb',1.6)+circ([226,14],6,C.metal)+circ([226,14],2.2,C.metalD,0);
+    if(layer==='front') return line(add(h,[2,-3]),add(h,[-2,9]),'#c9b48a',3.4)+line(add(h,[2,-3]),add(h,[7,9]),'#c9b48a',3.4)+circ(add(h,[-2,10]),2.6,C.metalD,0)+circ(add(h,[7,10]),2.6,C.metalD,0);
+    return '';
+  },
+  notes:[ {at:J=>J.n.elbow, text:'Elbows pinned to sides', x:72, y:110},
+          {when:late, at:J=>J.n.hand, text:'Straighten fully', x:84, y:168} ]
+});
+def({ id:'latraise', name:'Dumbbell Lateral Raise', sets:3, reps:'12–15', type:'reps', rest:60, load:'pair', muscles:['Shoulders'],
+  cue:'Lift to shoulder height • slight elbow bend', labels:['Arms down','Arms out'],
+  how:['Stand tall with a light dumbbell in each hand at your sides.',
+       'Bend your elbows a little and keep that bend.',
+       'Lift your arms out to the sides until they reach shoulder height.',
+       'Lower slowly. Use a light weight: this muscle is small.'],
+  mistakes:[['Lifting above shoulder height','Stop when your arms are level with your shoulders.'],
+            ['Shrugging the shoulders up','Keep your shoulders down, away from your ears.'],
+            ['Swinging with the body','Use a lighter weight and lift slowly.']],
+  front:{ hl:['shoulders'],
+    A:{ pelvis:[150,95], legs:{r:[92,1,90,1]}, arms:{r:[96,1,93,1]}, anchor:['r.ankle',140,ANK] },
+    B:{ pelvis:[150,95], legs:{r:[92,1,90,1]}, arms:{r:[176,1,170,1]}, anchor:['r.ankle',140,ANK] },
+    arrows:[{joint:'r.hand',off:[-6,-12]}],
+    draw(layer,{J}){ if(layer==='mid') return dumbbellEnd(J.r.hand,.9)+dumbbellEnd(J.l.hand,.9); return ''; },
+    notes:[ {when:late, svg:J=>dashed(add(J.r.sh,[-6,0]),add(J.l.hand,[12,0])), at:J=>add(J.l.hand,[12,0]), text:'Shoulder height, no higher', x:226, y:96},
+            {at:J=>add(J.r.sh,[0,-7]), text:'Shoulders down', x:62, y:26} ] }
+});
+def({ id:'deadbug', vb:'30 60 240 160', name:'Dead Bug', sets:3, reps:'6–8 each side', type:'reps', rest:60, load:'body', muscles:['Core'],
+  cue:'Low back on the floor • move slowly', labels:['Arms and knees up','Reach and extend'], timing:{a:500,m:1100,b:600,r:1100},
+  how:['Lie on your back. Arms straight up. Knees bent at 90° above your hips.',
+       'Press your lower back into the floor and brace your belly.',
+       'Slowly reach one arm back over your head and straighten the opposite leg.',
+       'Stop before your back lifts. Return, then switch sides.'],
+  mistakes:[['Lower back lifts off the floor','Do not reach so far. Keep your back pressed down.'],
+            ['Moving fast','Take 3 seconds to reach out and 3 seconds to return.'],
+            ['Holding your breath','Breathe out as you reach.']],
+  hl:['core'], farOff:{leg:[-3,-3],arm:[-3,-2]},
+  A:{ hip:[160,172], torso:180, head:180, legs:{n:[-90,0,-90], f:[-90,0,-90]}, arms:{n:[270,270], f:[270,270]} },
+  B:{ hip:[160,172], torso:180, head:180, legs:{n:[-90,0,-90], f:[4,4,-80]}, arms:{n:[196,196], f:[270,270]} },
+  arrows:[{joint:'n.hand',off:[0,-10]}],
+  draw(layer){ if(layer==='back') return rect(40,184,224,5,2,'#4a4136',0); return ''; },
+  notes:[ {at:J=>add(J.hip,[-14,8]), text:'Low back pressed down', x:110, y:206},
+          {when:late, text:'Opposite arm and leg', x:200, y:84} ]
+});
+def({ id:'calfraise', name:'Standing Calf Raise', sets:3, reps:'12–15', type:'reps', rest:60, load:'pair', muscles:['Calves'],
+  cue:'Rise high • lower slowly', labels:['Heels down','Heels up'],
+  how:['Stand tall with a dumbbell in each hand, or hold a support with one hand.',
+       'Feet hip-width apart, toes forward.',
+       'Rise up onto the balls of your feet as high as you can. Pause for 1 second.',
+       'Lower your heels slowly to the floor.'],
+  mistakes:[['Bouncing','Pause at the top and lower for 2 seconds.'],
+            ['Rolling to the outside of the foot','Push through the big-toe side of your foot.'],
+            ['Bending the knees','Keep your legs straight.']],
+  hl:['calves'], farOff:{leg:[-6,0],arm:[-5,-2]},
+  A:{ torso:-90, head:-90, legs:{n:[90,90,0]}, arms:{n:[90,90]}, anchor:['n.toe',166,182] },
+  B:{ torso:-90, head:-90, legs:{n:[90,90,40]}, arms:{n:[90,90]}, anchor:['n.toe',166,182] },
+  arrows:[{joint:'hip',off:[-28,0]}],
+  draw(layer,{J}){
+    if(layer==='farHand') return dumbbell(add(J.f.hand,[0,7]),0,.95);
+    if(layer==='front') return dumbbell(add(J.n.hand,[0,7]),0,1.05);
+    return '';
+  },
+  notes:[ {at:J=>J.n.knee, text:'Legs straight', x:70, y:120},
+          {when:late, at:J=>add(J.n.ankle,[-4,4]), text:'Up on balls of feet', x:232, y:150} ]
+});
+
+/* ---------- Stretch and warm-up animations (not in the exercise library) ---------- */
+const ANIM = {};
+function anim(o){ ANIM[o.id]=o; return o; }
+const HOLD = { a:500, m:900, b:1800, r:800 };
+anim({ id:'s_chest', labels:['Arm on post','Step forward'], timing:HOLD, hl:['chest'], farOff:{leg:[0,0],arm:[-5,-2]},
+  A:{ hip:[150,97], torso:-90, head:-90, legs:{n:{ik:[168,182],bend:-1,foot:0}, f:{ik:[138,182],bend:-1,foot:0}}, arms:{n:{ik:[121,27],bend:-1}, f:[92,90]} },
+  B:{ hip:[160,99], torso:-86, head:-88, legs:{n:{ik:[168,182],bend:-1,foot:0}, f:{ik:[138,182],bend:-1,foot:0}}, arms:{n:{ik:[121,27],bend:-1}, f:[92,90]} },
+  arrows:[{joint:'hip',off:[0,-22]}],
+  draw(layer){ if(layer==='back') return rect(108,0,10,188,2,C.metalD); return ''; },
+  notes:[ {at:J=>J.n.elbow, text:'Elbow at shoulder height', x:66, y:96},
+          {when:late, at:J=>add(J.shoulder,[8,10]), text:'Gentle pull in chest', x:232, y:70} ] });
+anim({ id:'s_ham', labels:['Heel on bench','Lean forward'], timing:HOLD, hl:['hamstrings'], farOff:{leg:[-4,0],arm:[-5,-2]},
+  A:{ hip:[140,97], torso:-90, head:-90, legs:{n:{ik:[210,147],bend:-1,foot:-80}, f:{ik:[140,182],bend:-1,foot:0}}, arms:{n:[92,90]} },
+  B:{ hip:[138,98], torso:-48, head:-56, legs:{n:{ik:[210,147],bend:-1,foot:-80}, f:{ik:[140,182],bend:-1,foot:0}}, arms:{n:[104,100]} },
+  arrows:[{joint:'shoulder',off:[-4,-18]}],
+  draw(layer){ if(layer==='back') return rect(196,150,54,9,4,C.pad)+rect(202,159,7,29,2,C.metalD)+rect(238,159,7,29,2,C.metalD); return ''; },
+  notes:[ {svg:J=>{ const b=V(J.torsoA-90,12); return dashed(add(J.hip,b),add(J.shoulder,b)); }, at:J=>add(mid2(J.hip,J.shoulder),V(J.torsoA-90,12)), text:'Back flat, lean from hips', x:84, y:40},
+          {at:J=>J.n.knee, text:'Front leg straight', x:236, y:110} ] });
+anim({ id:'s_quad', labels:['Stand tall','Heel to glutes'], timing:HOLD, hl:['quads'], farOff:{leg:[-4,0],arm:[-5,-2]},
+  A:{ hip:[150,97], torso:-90, head:-90, legs:{n:[90,90,0], f:[90,90,0]}, arms:{n:[90,90], f:[2,2]} },
+  B:{ hip:[150,97], torso:-90, head:-90, legs:{n:[93,260,200], f:[90,90,0]}, arms:{n:[105,100], f:[2,2]} },
+  arrows:[{joint:'n.ankle',off:[-14,0]}],
+  draw(layer){ if(layer==='back') return rect(201,36,9,152,2,C.metalD); return ''; },
+  notes:[ {at:J=>J.n.knee, text:'Knees together', x:70, y:156},
+          {at:J=>J.f.hand, text:'Hold a support', x:236, y:28} ] });
+anim({ id:'s_hipflex', vb:'20 40 260 173', labels:['Half kneel','Hips forward'], timing:HOLD, hl:['quads'], farOff:{leg:[0,0],arm:[-5,-2]},
+  A:{ hip:[150,142], torso:-90, head:-90, legs:{n:{ik:[92,182],bend:-1,foot:180}, f:{ik:[194,182],bend:-1,foot:0}}, arms:{n:[96,70]} },
+  B:{ hip:[160,142], torso:-92, head:-90, legs:{n:{ik:[92,182],bend:-1,foot:180}, f:{ik:[194,182],bend:-1,foot:0}}, arms:{n:[96,70]} },
+  arrows:[{joint:'hip',off:[0,-22]}],
+  notes:[ {at:J=>add(J.hip,[-12,4]), text:'Squeeze back glute', x:74, y:66},
+          {when:late, at:J=>add(J.n.hip,[0,10]), text:'Stretch here', x:236, y:120} ] });
+anim({ id:'s_lat', labels:['Hold the post','Sit hips back'], timing:HOLD, hl:['back'], farOff:{leg:[-4,0],arm:[-4,-2]},
+  A:{ hip:[165,100], torso:-60, head:-66, legs:{n:{ik:[180,182],bend:-1,foot:0}}, arms:{n:{ik:[224,105],bend:1}} },
+  B:{ hip:[128,128], torso:-5, head:20, legs:{n:{ik:[180,182],bend:-1,foot:0}}, arms:{n:{ik:[224,105],bend:1}} },
+  arrows:[{joint:'hip',off:[-12,-18]}],
+  draw(layer){ if(layer==='back') return rect(226,30,9,158,2,C.metalD); return ''; },
+  notes:[ {when:late, at:J=>J.hip, text:'Sit hips back', x:70, y:150},
+          {at:J=>mid2(J.shoulder,J.n.hand), text:'Arms long', x:150, y:40} ] });
+anim({ id:'s_shoulder', labels:['Arms down','Pull across'], timing:HOLD,
+  front:{ hl:['shoulders'],
+    A:{ pelvis:[150,95], legs:{r:[92,1,90,1]}, arms:{r:[95,1,92,1], l:[95,1,92,1]}, anchor:['r.ankle',140,ANK] },
+    B:{ pelvis:[150,95], legs:{r:[92,1,90,1]}, arms:{r:[5,.95,5,.9], l:[60,.6,300,.5]}, anchor:['r.ankle',140,ANK] },
+    arrows:[{joint:'r.hand',off:[6,14]}],
+    notes:[ {when:late, at:J=>J.r.hand, text:'Pull arm across chest', x:236, y:110},
+            {at:J=>add(J.r.sh,[-2,-6]), text:'Shoulder down, relaxed', x:68, y:28} ] } });
+anim({ id:'s_calf', labels:['Hands on wall','Lean in'], timing:HOLD, hl:['calves'], farOff:{leg:[0,0],arm:[-5,-2]},
+  A:{ hip:[150,101], torso:-88, head:-88, legs:{n:{ik:[122,182],bend:-1,foot:0}, f:{ik:[180,182],bend:-1,foot:0}}, arms:{n:[80,85]} },
+  B:{ hip:[165,106], torso:-70, head:-74, legs:{n:{ik:[122,182],bend:-1,foot:0}, f:{ik:[180,182],bend:-1,foot:0}}, arms:{n:[8,8]} },
+  arrows:[{joint:'hip',off:[0,-24]}],
+  draw(layer){ if(layer==='back') return rect(238,0,14,188,0,'#3b352c',0); return ''; },
+  notes:[ {at:J=>add(J.n.knee,[-4,0]), text:'Back knee straight', x:66, y:116},
+          {at:J=>add(J.n.ankle,[-6,6]), text:'Back heel down', x:62, y:168} ] });
+anim({ id:'w_circles', labels:['Small circles','Bigger circles'], timing:{a:200,m:700,b:200,r:700},
+  front:{ hl:['shoulders'],
+    A:{ pelvis:[150,95], legs:{r:[92,1,90,1]}, arms:{r:[180,1,180,1]}, anchor:['r.ankle',140,ANK] },
+    B:{ pelvis:[150,95], legs:{r:[92,1,90,1]}, arms:{r:[172,1,172,1]}, anchor:['r.ankle',140,ANK] },
+    arrows:[],
+    draw(layer,{J,t}){ if(layer!=='front') return ''; const r=4+8*t;
+      return `<circle cx="${f1(J.r.hand[0])}" cy="${f1(J.r.hand[1])}" r="${f1(r)}" fill="none" stroke="${C.arrow}" stroke-width="2" stroke-dasharray="3 2.4"/>`+
+             `<circle cx="${f1(J.l.hand[0])}" cy="${f1(J.l.hand[1])}" r="${f1(r)}" fill="none" stroke="${C.arrow}" stroke-width="2" stroke-dasharray="3 2.4"/>`; },
+    notes:[ {at:J=>add(J.l.hand,[0,-12]), text:'Arms straight out', x:236, y:20} ] } });
+anim({ id:'w_legswing', labels:['Swing forward','Swing back'], hl:[], farOff:{leg:[-4,0],arm:[-5,-2]},
+  A:{ hip:[150,97], torso:-90, head:-90, legs:{n:[58,72,-10], f:[90,90,0]}, arms:{n:[92,90], f:[2,2]} },
+  B:{ hip:[150,97], torso:-88, head:-90, legs:{n:[118,104,20], f:[90,90,0]}, arms:{n:[92,90], f:[2,2]} },
+  arrows:[{joint:'n.ankle',off:[0,10]}],
+  draw(layer){ if(layer==='back') return rect(201,36,9,152,2,C.metalD); return ''; },
+  notes:[ {at:J=>J.f.hand, text:'Hold a support', x:236, y:28} ] });
+anim(Object.assign({}, EX.goblet, { id:'w_bwsquat', draw:null, views:undefined, front:Object.assign({}, EX.goblet.front, { draw:null }) }));
+anim(Object.assign({}, EX.rdl, { id:'w_hinge', draw:null, views:undefined, notes:EX.rdl.notes.slice(0,2),
+  front:Object.assign({}, EX.rdl.front, { draw:null, notes:[EX.rdl.front.notes[1]] }) }));
+function animOf(id){ return EX[id] || ANIM[id] || null; }
+
 const WORKOUTS = { A:['goblet','bench','pulldown','rdl','plank'], B:['legpress','row','ohp','hamcurl','carry'], C:[] };
 
 /* Warm-up and cool-down. sec = timer length, sides = 2 runs the timer once per side. */
 const W_ITEMS = {
   cardio5:{ name:'Easy cardio', dose:'5 min', sec:300, how:'Bike, treadmill walk or rower. Easy pace: you can talk in full sentences.' },
-  circles:{ name:'Arm circles', dose:'10 forward, 10 back', sec:40, how:'Arms straight out to the sides. Start with small circles and make them bigger.' },
-  bwsquat:{ name:'Body-weight squats', dose:'× 10', how:'Same movement as the goblet squat, with no weight. Go slowly.' },
-  hinge:{ name:'Hip hinge practice', dose:'× 10', how:'Hands on your hips, small knee bend. Push your hips back like the RDL. Back flat.' },
-  inclinepu:{ name:'Incline push-ups', dose:'× 10', how:'Hands on a bench or a wall. Body straight. Lower your chest slowly.' },
-  bridge:{ name:'Glute bridges', dose:'× 10', how:'Lie on your back, knees bent. Lift your hips, squeeze your glutes, lower slowly.' },
+  circles:{ anim:'w_circles', name:'Arm circles', dose:'10 forward, 10 back', sec:40, how:'Arms straight out to the sides. Start with small circles and make them bigger.' },
+  bwsquat:{ anim:'w_bwsquat', name:'Body-weight squats', dose:'× 10', how:'Same movement as the goblet squat, with no weight. Go slowly.' },
+  hinge:{ anim:'w_hinge', name:'Hip hinge practice', dose:'× 10', how:'No weight, arms relaxed. Small knee bend. Push your hips back like the RDL. Back flat.' },
+  inclinepu:{ anim:'incpush', name:'Incline push-ups', dose:'× 10', how:'Hands on a bench or a wall. Body straight. Lower your chest slowly.' },
+  bridge:{ anim:'bridge', name:'Glute bridges', dose:'× 10', how:'Lie on your back, knees bent. Lift your hips, squeeze your glutes, lower slowly.' },
   squeeze:{ name:'Shoulder blade squeezes', dose:'× 10', how:'Arms straight in front. Pull your shoulder blades together, hold 2 seconds.' },
   lightset:{ name:'One light set first', dose:'× 8–10', how:'Before your first work set of each lift, do 1 set at about half the weight.' },
-  legswing:{ name:'Leg swings', dose:'10 each leg', how:'Hold a support. Swing one leg forward and back, then side to side.' }
+  legswing:{ anim:'w_legswing', name:'Leg swings', dose:'10 each leg', how:'Hold a support. Swing one leg forward and back, then side to side.' }
 };
 const C_ITEMS = {
-  chest:{ name:'Chest stretch', dose:'30 s each side', sec:30, sides:2, how:'Forearm on a door frame or post, elbow at shoulder height. Turn your body away gently.' },
-  ham:{ name:'Hamstring stretch', dose:'30 s each side', sec:30, sides:2, how:'Heel on a low bench, leg straight. Lean forward from the hips with a flat back.' },
-  quad:{ name:'Quad stretch', dose:'30 s each side', sec:30, sides:2, how:'Hold a support. Pull your heel toward your glutes. Keep your knees together.' },
-  hipflex:{ name:'Hip flexor stretch', dose:'30 s each side', sec:30, sides:2, how:'Half-kneel. Squeeze the glute of the back leg and shift your hips forward a little.' },
-  lat:{ name:'Lat stretch', dose:'30 s', sec:30, how:'Hold a post at waist height. Sit your hips back and let your arms and back stretch.' },
-  shoulder:{ name:'Cross-body shoulder stretch', dose:'30 s each side', sec:30, sides:2, how:'Pull one straight arm across your chest with the other hand.' },
-  calf:{ name:'Calf stretch', dose:'30 s each side', sec:30, sides:2, how:'Hands on a wall, one leg back, heel down, back knee straight.' }
+  chest:{ anim:'s_chest', name:'Chest stretch', dose:'30 s each side', sec:30, sides:2, how:'Forearm on a door frame or post, elbow at shoulder height. Turn your body away gently.' },
+  ham:{ anim:'s_ham', name:'Hamstring stretch', dose:'30 s each side', sec:30, sides:2, how:'Heel on a low bench, leg straight. Lean forward from the hips with a flat back.' },
+  quad:{ anim:'s_quad', name:'Quad stretch', dose:'30 s each side', sec:30, sides:2, how:'Hold a support. Pull your heel toward your glutes. Keep your knees together.' },
+  hipflex:{ anim:'s_hipflex', name:'Hip flexor stretch', dose:'30 s each side', sec:30, sides:2, how:'Half-kneel. Squeeze the glute of the back leg and shift your hips forward a little.' },
+  lat:{ anim:'s_lat', name:'Lat stretch', dose:'30 s', sec:30, how:'Hold a post at waist height. Sit your hips back and let your arms and back stretch.' },
+  shoulder:{ anim:'s_shoulder', name:'Cross-body shoulder stretch', dose:'30 s each side', sec:30, sides:2, how:'Pull one straight arm across your chest with the other hand.' },
+  calf:{ anim:'s_calf', name:'Calf stretch', dose:'30 s each side', sec:30, sides:2, how:'Hands on a wall, one leg back, heel down, back knee straight.' }
 };
 const PHASES = {
   warm:{ A:['cardio5','circles','bwsquat','hinge','inclinepu','lightset'], B:['cardio5','circles','bwsquat','bridge','squeeze','lightset'], C:['legswing','bwsquat','circles'] },
@@ -1106,13 +1381,15 @@ function setupVisuals(root){
   live.clear();
   if(io) io.disconnect();
   io = 'IntersectionObserver' in window ? new IntersectionObserver(es=>{ es.forEach(e=>{ const v=live.get(e.target); if(v) v.visible=e.isIntersecting; }); kick(); }, { rootMargin:'100px' }) : null;
-  root.querySelectorAll('.vis[data-id]').forEach(el=>{
-    const ex = EX[el.dataset.id]; if(!ex) return;
-    const st = { ex, vk:prefView(ex), paused:!S.preferences.animations, t0:performance.now(), pausedMs:0, visible:!io };
-    live.set(el, st);
-    drawVis(el, st, 0);
-    if(io) io.observe(el);
-  });
+  root.querySelectorAll('.vis[data-id]').forEach(addVis);
+  kick();
+}
+function addVis(el){
+  const ex = animOf(el.dataset.id); if(!ex) return;
+  const st = { ex, vk:prefView(ex), paused:!S.preferences.animations, t0:performance.now(), pausedMs:0, visible:!io };
+  live.set(el, st);
+  drawVis(el, st, 0);
+  if(io) io.observe(el);
   kick();
 }
 function drawVis(el, st, ms){
@@ -1137,6 +1414,7 @@ function drawVis(el, st, ms){
   const card = el.closest('.ex');
   if(card){ const ph=card.querySelectorAll('.ph'); if(ph[0]){ ph[0].classList.toggle('on',p.ph===0); ph[1].classList.toggle('on',p.ph===1); } }
   const pp = el.querySelector('.pp');
+  if(pp) pp.hidden = !st.paused;
   if(pp) pp.innerHTML = st.paused ? '<svg viewBox="0 0 16 16"><path d="M4 2 L13 8 L4 14Z" fill="#f2ede3"/></svg>' : '<svg viewBox="0 0 16 16"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="#f2ede3"/><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="#f2ede3"/></svg>';
 }
 function setView(el,key){
@@ -1237,8 +1515,9 @@ function phaseHTML(kind, sess){
     <summary><span class="ptitle">${title}</span><span class="pmeta">${n===ids.length?'Done · ':''}${n}/${ids.length} · about ${Math.max(1,Math.round(secs/60))} min</span></summary>
     <ul>${ids.map(id=>{ const it=phaseItem(kind,id), d=!!done[id];
       return `<li class="pi ${d?'done':''}"><button type="button" class="chk" data-act="phaseChk" data-k="${kind}" data-id="${id}" aria-pressed="${d}" aria-label="Mark ${esc(it.name)} done">${CHECK}</button>
-        <div><b>${esc(it.name)}</b><span class="dose">${esc(it.dose)}</span><small>${esc(it.how)}</small></div>
-        ${it.sec?`<button type="button" class="ptimer" data-act="phaseTimer" data-k="${kind}" data-id="${id}" aria-label="Start ${mmss(it.sec)} timer">▶ ${mmss(it.sec)}</button>`:'<span></span>'}</li>`; }).join('')}</ul>
+        <div><b>${esc(it.name)}</b><span class="dose">${esc(it.dose)}</span><small>${esc(it.how)}</small>${it.anim?`<button type="button" class="pshow" data-act="pshow" data-k="${kind}" data-id="${id}" aria-expanded="${openAnim.has(kind+':'+id)}">${openAnim.has(kind+':'+id)?'Hide move':'Show move'}</button>`:''}</div>
+        ${it.sec?`<button type="button" class="ptimer" data-act="phaseTimer" data-k="${kind}" data-id="${id}" aria-label="Start ${mmss(it.sec)} timer">▶ ${mmss(it.sec)}</button>`:'<span></span>'}
+        ${it.anim && openAnim.has(kind+':'+id) ? `<div class="vis pvis" data-id="${it.anim}" role="img" aria-label="${esc(it.name)} demonstration. Tap to pause."><svg class="fig" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"></svg>${S.preferences.animations?'<div class="pp"></div>':''}</div>` : ''}</li>`; }).join('')}</ul>
     ${kind==='cool'?'<p class="pnote">Stretch gently. You should feel a mild pull, never pain.</p>':'<p class="pnote">Warm-up items do not count toward your sets.</p>'}
   </details>`;
 }
@@ -1292,14 +1571,21 @@ function saveCardio(){
   const sess = sessionFor(curDate,true); sess.cardio = sess.cardio||[]; sess.cardio.push(c);
   save(true); closeSheet(); confirmDelC=null; renderWorkout(); toast('Cardio saved');
 }
+const openAnim = new Set();
+function refreshPhase(kind){
+  const old = view.querySelector(`.phase[data-kind="${kind}"]`); if(!old) return;
+  old.querySelectorAll('.vis[data-id]').forEach(e=>{ live.delete(e); if(io) io.unobserve(e); });
+  const tmp = document.createElement('div'); tmp.innerHTML = phaseHTML(kind, sessionFor(curDate,false));
+  const fresh = tmp.firstElementChild; if(!fresh) return;
+  if(old.open) fresh.open = true;
+  old.replaceWith(fresh);
+  fresh.querySelectorAll('.vis[data-id]').forEach(addVis);
+}
 function setPhaseDone(kind,id,on){
   const sess = sessionFor(curDate,true); sess[kind] = sess[kind]||{};
   if(on) sess[kind][id]=true; else delete sess[kind][id];
   save(true);
-  const old = view.querySelector(`.phase[data-kind="${kind}"]`); if(!old) return;
-  const tmp = document.createElement('div'); tmp.innerHTML = phaseHTML(kind, sess);
-  const fresh = tmp.firstElementChild; if(old.open && fresh) fresh.open = true;
-  if(fresh) old.replaceWith(fresh);
+  refreshPhase(kind);
 }
 function cardHTML(ex, sess, n, isExtra){
   const e = sess.exercises[ex.id];
@@ -1321,7 +1607,7 @@ function cardHTML(ex, sess, n, isExtra){
     h += `${chips}<div class="vis" data-id="${ex.id}" role="img" aria-label="${esc(ex.name)} demonstration. Tap to pause.">
         <svg class="fig" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"></svg>${S.preferences.animations?'<div class="pp"></div>':''}</div>
       ${S.preferences.animations?`<div class="phases"><span class="ph"><em>1</em>${esc(ex.labels[0])}</span><span class="arr">⇄</span><span class="ph"><em>2</em>${esc(ex.labels[1])}</span></div>`:''}
-      <p class="cue">${esc(ex.cue)}</p>
+      <p class="cue">${esc(ex.cue)}</p><p class="small muted" style="text-align:center;margin:4px 0 0">Tap the drawing to pause.</p>
       ${ex.mistakes?`<details class="mist" open><summary><span class="x">✕</span>Common mistakes</summary><ul>${ex.mistakes.map(([m,fx])=>`<li><span class="x">✕</span><div><b>${esc(m)}</b><span class="fix">${esc(fx)}</span></div></li>`).join('')}</ul></details>`:''}
       <details class="how"><summary>How to do it</summary><ol>${ex.how.map(s=>`<li>${esc(s)}</li>`).join('')}</ol></details>`;
   } else {
@@ -1654,6 +1940,7 @@ document.addEventListener('click', e=>{
     case 'pickM': cardioM=b.dataset.m; renderCardioSheet(); break;
     case 'askDelC': confirmDelC = confirmDelC===+b.dataset.i ? null : +b.dataset.i; { const box=document.getElementById('cardioBox'); if(box){ const t=document.createElement('div'); t.innerHTML=cardioHTML(sessionFor(curDate,false)); box.replaceWith(t.firstElementChild); } } break;
     case 'delC': { const sess=sessionFor(curDate,true); sess.cardio.splice(+b.dataset.i,1); confirmDelC=null; save(true); renderWorkout(); toast('Cardio entry deleted'); break; }
+    case 'pshow': { const key=b.dataset.k+':'+b.dataset.id; if(openAnim.has(key)) openAnim.delete(key); else openAnim.add(key); refreshPhase(b.dataset.k); break; }
     case 'phaseChk': { const on=b.getAttribute('aria-pressed')!=='true'; setPhaseDone(b.dataset.k,b.dataset.id,on); buzz(on?30:10); break; }
     case 'phaseTimer': {
       const k=b.dataset.k, id=b.dataset.id, it=phaseItem(k,id), kind=k==='warm'?'Warm-up':'Stretch';
